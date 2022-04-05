@@ -87,7 +87,6 @@ app.get('/webcams/lorica', cache(10), (req, res, next) => {
 })
 
 
-const port = 80
 
 app.use(function(req, res, next) {
   res.status(404);
@@ -100,6 +99,9 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something broke!')
 })
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+const PORT = process.env.PORT || 80;
+
+
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}`)
 })
