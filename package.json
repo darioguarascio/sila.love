@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "@directus/sdk": "^9.5.2",
+    "axios": "^0.26.0",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "express-winston": "^4.2.0",
+    "memory-cache": "^0.2.0",
+    "redis": "^4.0.4",
+    "ssh2-sftp-client": "^8.0.0",
+    "twig-markdown": "^1.0.1",
+    "winston": "^3.6.0"
+  }
+}

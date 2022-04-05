@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+  <title>🌲 💚 - Sila</title>
+
+  <meta property="og:image" content="https://sila.love/webcams/lorica" />
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // tailwind.config = {
+    //   theme: {
+    //     extend: {
+    //       colors: {
+    //         clifford: '#da373d',
+    //       }
+    //     }
+    //   }
+    // }
+  </script>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+<div class="container w-full md:max-w-4xl mx-auto pt-20">
+<h1 class="text-2xl my-4 py-1 flex flex-col border-l-8 border-gray-300 pl-2"><span class="font-semibold inline-block">Immagini da Lorica</span> <span class="inline-block text-gray-600 italic text-sm">ogni ~50m durante le ore diurne</span></h1>
+<div class="bg-white shadow rounded mb-10">
+<h1 id="title" class="font-semibold text-center py-4 flex flex-row">
+<span class="flex-grow py-3 text-green-800"></span>
+<span class="flex-none p-3 bg-blue-400 text-white font-mono mr-2 rounded-lg shadow-md"></span>
+</h1>
+<img class="p-2" src="/webcams/lorica" onload="
+             fetch('/webcams/lorica?meta')
+            .then(response => response.json())
+            .then(function(data) {
+                let ee = document.querySelectorAll('h1#title span');
+                ee[0].innerText = `${data.abs} (${data.rel}), ${data.weather.weather[0].description}`
+                ee[1].innerText = `${data.weather.temp}°C`
+            }) " />
+</div>
+</div>
+</body>
+</html>
