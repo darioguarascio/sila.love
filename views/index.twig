@@ -29,7 +29,7 @@
 <span class="flex-none p-3 bg-blue-400 text-white font-mono mr-2 rounded-lg shadow-md"></span>
 </h1>
 <img class="p-2" src="/webcams/lorica" onload="
-             fetch('/webcams/lorica?meta')
+             fetch('/webcams/lorica/meta')
             .then(response => response.json())
             .then(function(data) {
                 let ee = document.querySelectorAll('h1#title span');

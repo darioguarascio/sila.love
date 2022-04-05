@@ -1,5 +1,9 @@
 require('dotenv').config();
 
+const moment = require('moment');
+moment.locale('it');
+
+const axios = require('axios');
 const mcache = require('memory-cache');
 const express = require('express')
 const winston = require('winston');
@@ -25,6 +29,9 @@ var cache = (duration) => {
     }
   }
 }
+
+let momentDate = moment('2022.01.01-11.11', 'YYYY.MM.DD-HH.mm');
+console.log(momentDate.fromNow())
 
 app.set("twig options", {
     allow_async: true, // Allow asynchronous compiling
@@ -53,7 +60,35 @@ app.get('/', (req, res, next) => {
   });
 });
 
-app.get('/webcams/lorica', cache(10), (req, res, next) => {
+app.get('/webcams/lorica/meta', cache(60*5), (req, res, next) => {
+  let file = mcache.get('last-image');
+
+  axios.get('https://api.openweathermap.org/data/2.5/onecall?lat=39.24985633997943&lon=16.51506397532768&exclude=minutely,hourly,daily,alerts&units=metric&lang=it&appid=' + process.env.SILA_OPENWEATHER_API)
+    .then(function (response) {
+      res.weather = response.data
+      // handle success
+      // console.log(response);
+    })
+    .catch(function (error) {
+      // handle error
+      console.log(error);
+    })
+    .then(function () {
+      let fn = file.split('/').reverse()[0].replace('.jpg','')
+      let momentDate = moment(fn, 'YYYY.MM.DD-HH.mm');
+      let o = {
+        "t": momentDate.format('x'),
+        "now": (new Date()).getTime(),
+        "rel": momentDate.fromNow(),
+        "abs": momentDate.format('LLLL'),
+        "name": file,
+        "weather": res.weather.current
+      };
+      res.send(o)
+    });
+})
+
+app.get('/webcams/lorica', cache(60*5), (req, res, next) => {
 
   let Client = require('ssh2-sftp-client');
   let sftp = new Client();
@@ -66,6 +101,9 @@ app.get('/webcams/lorica', cache(10), (req, res, next) => {
   }).then(() => {
     return sftp.get('/.lorica-last-screenshot');
   }).then(data => {
+    let file = data.toString().trim();
+    mcache.put('last-image', file);
+
     return {
       "name": data.toString().trim().split('/').reverse()[0],
       "data": sftp.get(data.toString().trim())
@@ -85,6 +123,7 @@ app.get('/webcams/lorica', cache(10), (req, res, next) => {
     console.log(err, 'catch error');
   });
 })
+
 
 
 
