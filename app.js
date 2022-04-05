@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const moment = require('moment');
 moment.locale('it');
+moment.tz.setDefault('Europe/Rome');
 
 const axios = require('axios');
 const mcache = require('memory-cache');
