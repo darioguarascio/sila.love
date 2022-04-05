@@ -87,7 +87,7 @@ app.get('/webcams/lorica', cache(10), (req, res, next) => {
 })
 
 
-const port = 3000
+const port = 80
 
 app.use(function(req, res, next) {
   res.status(404);
