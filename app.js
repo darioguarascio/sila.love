@@ -11,25 +11,6 @@ const expressWinston = require('express-winston');
 const twig = require('twig');
 const app = express()
 
-
-var cache = (duration) => {
-  return (req, res, next) => {
-    let key = '__express__' + req.originalUrl || req.url
-    let cachedBody = mcache.get(key)
-    if (cachedBody) {
-      res.send(cachedBody)
-      return
-    } else {
-      res.sendResponse = res.send
-      res.send = (body) => {
-        mcache.put(key, body, duration * 1000);
-        res.sendResponse(body)
-      }
-      next()
-    }
-  }
-}
-
 // let momentDate = moment('2022.01.01-11.11', 'YYYY.MM.DD-HH.mm');
 // console.log(momentDate.fromNow())
 
@@ -60,43 +41,72 @@ app.get('/', (req, res, next) => {
   });
 });
 
-app.get('/webcams/lorica/meta', cache(60*5), (req, res, next) => {
-  let file = mcache.get('last-image');
-  let url  = `https://api.openweathermap.org/data/2.5/onecall?lat=${process.env.LAT}&lon=${process.env.LNG}&exclude=minutely,hourly,daily,alerts&units=metric&lang=${process.env.LOCALE}&appid=${process.env.SILA_OPENWEATHER_API}`;
-  axios.get(url)
-    .then(function (response) {
-      res.weather = response.data
+app.get('/webcams/lorica/meta', (req, res, next) => {
+  if (!mcache.get('image-name')) {
+    getimg().then( (data) => {
+      respobject().then( (data) => {
+        res.send(data)
+      })
+    });
+  } else {
+    respobject().then( (data) => {
+      res.send(data)
     })
-    .then(function () {
-      let fn = file.split('/').reverse()[0].replace('.jpg','')
+  }
+})
+
+app.get('/webcams/lorica', (req, res, next) => {
+  res.set({
+    'Cache-Control': 'private, max-age=0, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': 'Sat, 26 Jul 1997 05:00:00 GMT',
+    'Content-Type': 'image/jpeg',
+  });
+  let data = mcache.get('image-buf')
+  if (!data) {
+    getimg().then( (data) => {
+
+      res.set({
+        'Content-Disposition': 'inline; filename="' + data.name + '"'
+      });
+      res.send(data.data)
+    });
+  } else {
+    res.set({
+      'Content-Disposition': 'inline; filename="' + mcache.get('image-name') + '"'
+    });
+    res.send(data);
+  }
+})
+
+
+async function respobject() {
+  let url  = `https://api.openweathermap.org/data/2.5/onecall?lat=${process.env.LAT}&lon=${process.env.LNG}&exclude=minutely,hourly,daily,alerts&units=metric&lang=${process.env.LOCALE}&appid=${process.env.SILA_OPENWEATHER_API}`;
+  return await axios.get(url)
+    .then(function (response) {
+      let fn = mcache.get('image-name').split('/').reverse()[0].replace('.jpg','')
       let momentDate = moment(fn, 'YYYY.MM.DD-HH.mm');
-
-      res.type('json');
-
-      res.send({
+      return {
         "t": momentDate.format('x'),
         "now": (new Date()).getTime(),
         "rel": momentDate.fromNow(),
         "abs": momentDate.format('LLLL'),
-        "name": file,
-        "weather": res.weather.current,
-
-        // @TODO - remove static string
+        "name": fn,
+        "weather": response.data.current,
         "image": "https://sila.love/webcams/lorica"
-      });
+      };
     })
-    .catch(function (error) {
-      next(error)
-    });
+}
 
-})
 
-app.get('/webcams/lorica', cache(60*5), (req, res, next) => {
+async function getimg() {
+
 
   let Client = require('ssh2-sftp-client');
   let sftp = new Client();
 
-  sftp.connect({
+  let name;
+  return await sftp.connect({
     host: process.env.SILA_SFTP_HOST,
     port: process.env.SILA_SFTP_PORT || '22',
     username: process.env.SILA_SFTP_USER,
@@ -105,28 +115,18 @@ app.get('/webcams/lorica', cache(60*5), (req, res, next) => {
     return sftp.get('/.lorica-last-screenshot');
   }).then(data => {
     let file = data.toString().trim();
-    mcache.put('last-image', file);
 
+    name = data.toString().trim().split('/').reverse()[0];
+    return sftp.get(data.toString().trim());
+  }).then(data => {
+    mcache.put('image-name', name);
+    mcache.put('image-buf', data, 5*60*1000);
     return {
-      "name": data.toString().trim().split('/').reverse()[0],
-      "data": sftp.get(data.toString().trim())
-    };
-  }).then(data => {
-    res.set({
-      'Cache-Control': 'private, max-age=0, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': 'Sat, 26 Jul 1997 05:00:00 GMT',
-      'Content-Type': 'image/jpeg',
-      'Content-Disposition': 'inline; filename="' + data.name + '"'
-    });
-    return data.data
-  }).then(data => {
-    res.send(data)
-  }).catch(err => {
-    console.log(err, 'catch error');
+      name,
+      data
+    }
   });
-})
-
+}
 
 
 
