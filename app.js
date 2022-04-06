@@ -30,8 +30,8 @@ var cache = (duration) => {
   }
 }
 
-let momentDate = moment('2022.01.01-11.11', 'YYYY.MM.DD-HH.mm');
-console.log(momentDate.fromNow())
+// let momentDate = moment('2022.01.01-11.11', 'YYYY.MM.DD-HH.mm');
+// console.log(momentDate.fromNow())
 
 app.set("twig options", {
     allow_async: true, // Allow asynchronous compiling
@@ -62,30 +62,33 @@ app.get('/', (req, res, next) => {
 
 app.get('/webcams/lorica/meta', cache(60*5), (req, res, next) => {
   let file = mcache.get('last-image');
-
-  axios.get('https://api.openweathermap.org/data/2.5/onecall?lat=39.24985633997943&lon=16.51506397532768&exclude=minutely,hourly,daily,alerts&units=metric&lang=it&appid=' + process.env.SILA_OPENWEATHER_API)
+  let url  = `https://api.openweathermap.org/data/2.5/onecall?lat=${process.env.LAT}&lon=${process.env.LNG}&exclude=minutely,hourly,daily,alerts&units=metric&lang=${process.env.LOCALE}&appid=${process.env.SILA_OPENWEATHER_API}`;
+  axios.get(url)
     .then(function (response) {
       res.weather = response.data
-      // handle success
-      // console.log(response);
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error);
     })
     .then(function () {
       let fn = file.split('/').reverse()[0].replace('.jpg','')
       let momentDate = moment(fn, 'YYYY.MM.DD-HH.mm');
-      let o = {
+
+      res.type('json');
+
+      res.send({
         "t": momentDate.format('x'),
         "now": (new Date()).getTime(),
         "rel": momentDate.fromNow(),
         "abs": momentDate.format('LLLL'),
         "name": file,
-        "weather": res.weather.current
-      };
-      res.send(o)
+        "weather": res.weather.current,
+
+        // @TODO - remove static string
+        "image": "https://sila.love/webcams/lorica"
+      });
+    })
+    .catch(function (error) {
+      next(error)
     });
+
 })
 
 app.get('/webcams/lorica', cache(60*5), (req, res, next) => {
@@ -129,7 +132,6 @@ app.get('/webcams/lorica', cache(60*5), (req, res, next) => {
 
 app.use(function(req, res, next) {
   res.status(404);
-  // default to plain-text. send()
   res.type('txt').send('Not found');
 });
 
