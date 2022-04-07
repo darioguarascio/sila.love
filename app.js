@@ -86,6 +86,8 @@ async function respobject() {
     .then(function (response) {
       let fn = mcache.get('image-name').split('/').reverse()[0].replace('.jpg','')
       let momentDate = moment(fn, 'YYYY.MM.DD-HH.mm');
+      let sunset = moment(response.data.current.sunset * 1000)
+
       response.data.current.temp = Math.round(response.data.current.temp);
       return {
         "t": momentDate.format('x'),
@@ -97,7 +99,7 @@ async function respobject() {
         "image": "https://sila.love/webcams/lorica",
 
         "text": {
-          "message": `A lorica c'è ${response.data.current.weather[0].description} e ci sono ${response.data.current.temp} gradi.`,
+          "message": `A lorica c'è ${response.data.current.weather[0].description} e ci sono ${response.data.current.temp} gradi. Il tramonto e' previsto per le ${sunset.format('HH:mm')}`,
           "update": `L'ultima immagine e' di ${momentDate.fromNow()}.`
         }
 
