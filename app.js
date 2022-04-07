@@ -99,7 +99,7 @@ async function respobject() {
         "image": "https://sila.love/webcams/lorica",
 
         "text": {
-          "message": `A lorica c'è ${response.data.current.weather[0].description} e ci sono ${response.data.current.temp} gradi. Il tramonto e' previsto per le ${sunset.format('HH:mm')}`,
+          "message": `A lorica c'è ${response.data.current.weather[0].description} e ci sono ${response.data.current.temp} gradi. Il tramonto e' previsto per le ${sunset.format('HH:mm')}. `,
           "update": `L'ultima immagine e' di ${momentDate.fromNow()}.`
         }
 
