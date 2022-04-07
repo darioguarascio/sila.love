@@ -63,10 +63,10 @@ video feed before sending it back to the client.
 
 Figuring out the details of the used protocol was too time consuming, I gave up.
 
-** FAILURE**
+**FAILURE**
 
 
-## Ownership attempt #3: KISS.
+### Ownership attempt #3: KISS.
 
 I figured that the app was allowing screenshots to be taken, and I imagined that a live video feed
 was not strictly necessary to give out the "always available" view my initial present idea was supposed to.
