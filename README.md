@@ -58,7 +58,7 @@ After evidence that a reply to my email was never going to happen, the second st
 Decompiling the app, sneaking into the code, trying to figure out protocols, involved servers, etc.
 I imagined that whoever developed this app did not reinvent the wheel about video streams encoding.
 
-The outcome of this process was just a gigantic 1984 vibe, where chinese servers where receiving the
+The outcome of this process was just a gigantic [1984](https://en.wikipedia.org/wiki/Nineteen_Eighty-Four) vibe, where chinese servers where receiving the
 video feed before sending it back to the client.
 
 Figuring out the details of the used protocol was too time consuming, I gave up.
