@@ -86,6 +86,7 @@ async function respobject() {
     .then(function (response) {
       let fn = mcache.get('image-name').split('/').reverse()[0].replace('.jpg','')
       let momentDate = moment(fn, 'YYYY.MM.DD-HH.mm');
+      response.data.current.temp = Math.round(response.data.current.temp);
       return {
         "t": momentDate.format('x'),
         "now": (new Date()).getTime(),
