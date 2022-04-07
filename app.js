@@ -94,7 +94,13 @@ async function respobject() {
         "abs": momentDate.format('LLLL'),
         "name": fn,
         "weather": response.data.current,
-        "image": "https://sila.love/webcams/lorica"
+        "image": "https://sila.love/webcams/lorica",
+
+        "text": {
+          "message": `A lorica c'è ${response.data.current.weather[0].description} e ci sono ${response.data.current.temp} gradi.`,
+          "update": `L'ultima immagine e' di ${momentDate.fromNow()}.`
+        }
+
       };
     })
 }
