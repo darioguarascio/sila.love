@@ -41,6 +41,12 @@ app.get('/', (req, res, next) => {
   });
 });
 
+app.get('/lago-lorica', (req, res, next) => {
+  res.render('lago-lorica.twig', {
+    // message : "Hello World"
+  });
+});
+
 app.get('/webcams/lorica/meta', (req, res, next) => {
   if (!mcache.get('image-name')) {
     getimg().then( (data) => {
